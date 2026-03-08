@@ -1,0 +1,196 @@
+services:
+  # ============================================
+  # JELLYFIN - Media Server (alternativa open source ao Plex)
+  # http://localhost:8096
+  # ============================================
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/jellyfin:/config
+      - ${MEDIA_DIR}/movies:/data/movies
+      - ${MEDIA_DIR}/tv:/data/tv
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+  # ============================================
+  # QBITTORRENT - Cliente de download
+  # http://localhost:8080
+  # ============================================
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${CONFIG_DIR}/qbittorrent:/config
+      - ${MEDIA_DIR}/downloads:/downloads
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+  # ============================================
+  # PROWLARR - Gerenciador de Indexadores
+  # http://localhost:9696
+  # ============================================
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/prowlarr:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+  # ============================================
+  # FLARESOLVERR - Bypass Cloudflare para indexadores
+  # http://localhost:8191
+  # ============================================
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - TZ=${TZ}
+    ports:
+      - "8191:8191"
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+  # ============================================
+  # SONARR - Gerenciador de Séries
+  # http://localhost:8989
+  # ============================================
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/sonarr:/config
+      - ${MEDIA_DIR}:/data
+      - ${MEDIA_DIR}/downloads:/downloads
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    networks:
+      - mediastack
+
+  # ============================================
+  # RADARR - Gerenciador de Filmes
+  # http://localhost:7878
+  # ============================================
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/radarr:/config
+      - ${MEDIA_DIR}:/data
+      - ${MEDIA_DIR}/downloads:/downloads
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    networks:
+      - mediastack
+
+  # ============================================
+  # BAZARR - Gerenciador de Legendas
+  # http://localhost:6767
+  # ============================================
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/bazarr:/config
+      - ${MEDIA_DIR}:/data
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+    depends_on:
+      - sonarr
+      - radarr
+    networks:
+      - mediastack
+
+  # ============================================
+  # JELLYSEERR - Interface de Requests (pedir filmes/séries)
+  # http://localhost:5055
+  # ============================================
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/jellyseerr:/app/config
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
+    depends_on:
+      - jellyfin
+      - sonarr
+      - radarr
+    networks:
+      - mediastack
+
+  # ============================================
+  # DASHBOARD - archwes control panel
+  # http://localhost:3000
+  # ============================================
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yml:/compose/docker-compose.yml:ro
+    ports:
+      - "3000:3000"
+    environment:
+      - DASHBOARD_USER=${DASHBOARD_USER:-wes}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-02092003}
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+networks:
+  mediastack:
+    driver: bridge

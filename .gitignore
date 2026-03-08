@@ -1,0 +1,26 @@
+# Ambiente
+.env
+
+# Configs dos serviços (dados locais de cada container)
+config/jellyfin/
+config/sonarr/
+config/radarr/
+config/prowlarr/
+config/bazarr/
+config/qbittorrent/
+config/jellyseerr/
+config/flaresolverr/
+
+# Mídia e downloads
+media/
+
+# Node
+dashboard/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
