@@ -140,16 +140,21 @@ function createCard(service) {
     </div>
   `;
 
-  /* 3D tilt on hover */
+  /* 3D tilt on hover (RAF-throttled) */
+  let tiltRAF = 0;
   card.addEventListener("mousemove", (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    card.style.transform = `perspective(600px) rotateX(${(y - .5) * -8}deg) rotateY(${(x - .5) * 8}deg) scale3d(1.02,1.02,1.02)`;
-    card.style.setProperty("--mouse-x", `${x * 100}%`);
-    card.style.setProperty("--mouse-y", `${y * 100}%`);
+    if (tiltRAF) return;
+    tiltRAF = requestAnimationFrame(() => {
+      tiltRAF = 0;
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      card.style.transform = `perspective(600px) rotateX(${(y - .5) * -6}deg) rotateY(${(x - .5) * 6}deg) scale3d(1.01,1.01,1.01)`;
+      card.style.setProperty("--mouse-x", `${x * 100}%`);
+      card.style.setProperty("--mouse-y", `${y * 100}%`);
+    });
   });
-  card.addEventListener("mouseleave", () => { card.style.transform = ""; });
+  card.addEventListener("mouseleave", () => { cancelAnimationFrame(tiltRAF); tiltRAF = 0; card.style.transform = ""; });
 
   /* Ripple */
   card.addEventListener("mousedown", (e) => {
@@ -472,7 +477,7 @@ function initCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   let w, h, particles, mouse;
-  const COUNT = 60, CONN = 150, MDIST = 200;
+  const COUNT = 35, CONN = 120, MDIST = 160;
 
   mouse = { x: -1000, y: -1000 };
 
