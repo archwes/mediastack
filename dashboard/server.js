@@ -1,7 +1,6 @@
 "use strict";
 
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const Docker = require("dockerode");
@@ -37,15 +36,9 @@ const STACK_CONTAINERS = new Set([
 ]);
 
 /* ── Password ── */
-let passwordHash;
-
-async function initPassword() {
-  if (/^\$2[aby]\$/.test(DASHBOARD_PASSWORD)) {
-    passwordHash = DASHBOARD_PASSWORD;
-  } else {
-    passwordHash = await bcrypt.hash(DASHBOARD_PASSWORD, 12);
-  }
-}
+const PASSWORD_SALT = crypto.randomBytes(32);
+const passwordHash = crypto.createHmac("sha256", PASSWORD_SALT)
+  .update(DASHBOARD_PASSWORD).digest();
 
 /* ── Middleware ── */
 app.use(
@@ -81,14 +74,16 @@ function requireAuth(req, res, next) {
 }
 
 /* ━━━ Auth Routes ━━━ */
-app.post("/api/auth/login", loginLimiter, async (req, res) => {
+app.post("/api/auth/login", loginLimiter, (req, res) => {
   const { username, password } = req.body;
   if (typeof username !== "string" || typeof password !== "string") {
     return res.status(400).json({ error: "Dados inválidos" });
   }
 
   const userOk = username === DASHBOARD_USER;
-  const passOk = await bcrypt.compare(password, passwordHash);
+  const inputHash = crypto.createHmac("sha256", PASSWORD_SALT)
+    .update(password).digest();
+  const passOk = crypto.timingSafeEqual(inputHash, passwordHash);
 
   if (!userOk || !passOk) {
     return res.status(401).json({ error: "Credenciais inválidas" });
@@ -271,13 +266,6 @@ app.get("*", (_req, res) => {
 });
 
 /* ━━━ Start ━━━ */
-initPassword()
-  .then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`archwes dashboard → :${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Falha ao iniciar:", err);
-    process.exit(1);
-  });
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`archwes dashboard → :${PORT}`);
+});
