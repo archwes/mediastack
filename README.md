@@ -219,6 +219,34 @@ Após a stack estar rodando, acesse pelo navegador:
 6. **Jellyfin** — Configure suas bibliotecas apontando para `/data/movies` e `/data/tv`
 7. **Jellyseerr** — Conecte ao Jellyfin, Sonarr e Radarr
 
+## 🌐 Configuração de Idiomas
+
+A stack vem com dois perfis de idioma separados:
+
+### Filmes e Séries (perfis regulares)
+| Idioma | Prioridade (score) |
+|---|---|
+| Português (Brasil) | 150 |
+| English | 50 |
+
+### Anime (perfil "Anime HD-1080p")
+| Idioma | Prioridade (score) |
+|---|---|
+| Português (Brasil) | 150 |
+| Japanese | 100 |
+| English | 50 |
+
+### Como usar:
+- Ao adicionar séries/filmes **normais** no Sonarr/Radarr, use qualquer perfil regular (ex: `HD-1080p`)
+- Ao adicionar **anime**, selecione o perfil **`Anime HD-1080p`**
+- O Bazarr busca legendas automaticamente em **PT-BR** (prioridade) e **EN** (fallback)
+- O Jellyfin exibe metadados (títulos, sinopses) em **português**
+
+### Configuração nos serviços:
+- **Sonarr/Radarr**: Custom Formats com scores de idioma aplicados em todos os Quality Profiles
+- **Bazarr**: Profile "PT-BR + EN" como padrão, provedores OpenSubtitles, Legendas.net, SubDL e Podnapisi ativos
+- **Jellyfin**: Idioma de metadados `pt`, país `BR`, interface `pt-BR`
+
 ## 🔧 Comandos úteis
 
 ```bash
