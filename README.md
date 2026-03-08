@@ -80,7 +80,7 @@ newgrp docker
 ### 2. Clonar o repositório
 
 ```bash
-git clone https://github.com/SEU_USUARIO/mediastack.git
+git clone https://github.com/archwes/mediastack.git
 cd mediastack
 ```
 
@@ -147,7 +147,7 @@ docker compose ps
 Abra o **PowerShell** ou **Git Bash**:
 
 ```powershell
-git clone https://github.com/SEU_USUARIO/mediastack.git
+git clone https://github.com/archwes/mediastack.git
 cd mediastack
 ```
 
