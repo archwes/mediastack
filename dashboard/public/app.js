@@ -22,6 +22,9 @@ const ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" s
 let authenticated = false;
 let currentView = "dashboard";
 let currentTab = "containers";
+let canvasPaused = false;
+let animFrameId = null;
+let resumeCanvas = function() {};
 
 /* ━━━ Helpers ━━━ */
 function baseUrl(port) {
@@ -87,6 +90,7 @@ async function logout() {
 }
 
 function showLogin() {
+  canvasPaused = true;
   const overlay = document.getElementById("login-overlay");
   overlay.classList.add("visible");
   document.getElementById("login-user").focus();
@@ -97,6 +101,8 @@ function hideLogin() {
   overlay.classList.remove("visible");
   document.getElementById("login-form").reset();
   document.getElementById("login-error").textContent = "";
+  canvasPaused = false;
+  if (!animFrameId) resumeCanvas();
 }
 
 function updateAuthUI() {
@@ -487,6 +493,11 @@ function initCanvas() {
   }
 
   function draw() {
+    if (canvasPaused) {
+      animFrameId = null;
+      return;
+    }
+
     ctx.clearRect(0, 0, w, h);
 
     const g1 = ctx.createRadialGradient(w * .3, h * .2, 0, w * .3, h * .2, w * .6);
@@ -527,8 +538,14 @@ function initCanvas() {
       if (p.y < 0 || p.y > h) p.vy *= -1;
     }
 
-    requestAnimationFrame(draw);
+    animFrameId = requestAnimationFrame(draw);
   }
+
+  resumeCanvas = function() {
+    if (!canvasPaused && !animFrameId) {
+      animFrameId = requestAnimationFrame(draw);
+    }
+  };
 
   window.addEventListener("resize", () => { resize(); create(); });
   document.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
