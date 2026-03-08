@@ -477,7 +477,7 @@ function initCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   let w, h, particles, mouse;
-  const COUNT = 35, CONN = 120, MDIST = 160;
+  const COUNT = 60, CONN = 150, MDIST = 200;
 
   mouse = { x: -1000, y: -1000 };
 
