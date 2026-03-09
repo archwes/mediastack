@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>archwes · media stack</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2358a6ff'/><stop offset='100%25' stop-color='%23a371f7'/></linearGradient></defs><text y='.88em' font-size='90' font-weight='bold' font-family='system-ui' fill='url(%23g)'>A</text></svg>">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
@@ -76,12 +76,16 @@
 
   <!-- ── Dashboard View ── -->
   <main id="view-dashboard" class="view active">
-    <section id="featured-section">
-      <h2 class="section-label">Principais</h2>
-      <div class="grid featured-grid" id="featured-grid"></div>
+    <section id="streaming-section">
+      <h2 class="section-label">Streaming & Requests</h2>
+      <div class="grid streaming-grid" id="streaming-grid"></div>
+    </section>
+    <section id="automation-section">
+      <h2 class="section-label section-label--automation">Automação</h2>
+      <div class="grid automation-grid" id="automation-grid"></div>
     </section>
     <section id="tools-section">
-      <h2 class="section-label section-label--secondary">Ferramentas</h2>
+      <h2 class="section-label section-label--tools">Infraestrutura</h2>
       <div class="grid tools-grid" id="tools-grid"></div>
     </section>
   </main>

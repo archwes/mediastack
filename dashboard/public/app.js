@@ -6,16 +6,19 @@
 
 /* ━━━ Services ━━━ */
 const SERVICES = [
-  { name: "Jellyfin",     description: "Servidor de mídia — assista filmes e séries",         port: 8096, category: "media",    icon: "icons/jellyfin.ico",     health: "/System/Info/Public", featured: true },
-  { name: "Jellyseerr",   description: "Solicite filmes e séries para download",              port: 5055, category: "request",  icon: "icons/jellyseerr.ico",   health: "/api/v1/status",      featured: true },
-  { name: "Sonarr",       description: "Gerenciamento e automação de séries de TV",           port: 8989, category: "manage",   icon: "icons/sonarr.svg",       health: "/ping",               featured: true },
-  { name: "Radarr",       description: "Gerenciamento e automação de filmes",                 port: 7878, category: "manage",   icon: "icons/radarr.svg",       health: "/ping",               featured: true },
-  { name: "Bazarr",       description: "Gerenciamento automático de legendas",                port: 6767, category: "subtitle", icon: "icons/bazarr.png",       health: "/api/system/status",   featured: false },
-  { name: "Prowlarr",     description: "Gerenciador de indexadores para Sonarr e Radarr",     port: 9696, category: "indexer",  icon: "icons/prowlarr.svg",     health: "/ping",               featured: false },
-  { name: "qBittorrent",  description: "Cliente de download de torrents",                     port: 8080, category: "download", icon: "icons/qbittorrent.svg",  health: "/api/v2/app/version", featured: false },
-  { name: "FlareSolverr",description: "Proxy para bypass de proteção Cloudflare",            port: 8191, category: "tool",     icon: "icons/flaresolverr.svg", health: "/health",             featured: false },
-  { name: "Navidrome",   description: "Servidor de música — streaming e biblioteca",         port: 4533, category: "media",    icon: "icons/navidrome.svg",    health: "/api/ping",           featured: true },
-  { name: "Lidarr",      description: "Gerenciamento e automação de música",                 port: 8686, category: "manage",   icon: "icons/lidarr.svg",       health: "/ping",               featured: false },
+  /* ── Streaming & Requests ── */
+  { name: "Jellyfin",     description: "Servidor de mídia — assista filmes e séries",         port: 8096, category: "media",    icon: "icons/jellyfin.ico",     health: "/System/Info/Public", section: "streaming" },
+  { name: "Navidrome",    description: "Servidor de música — streaming e biblioteca",         port: 4533, category: "media",    icon: "icons/navidrome.svg",    health: "/api/ping",           section: "streaming" },
+  { name: "Jellyseerr",   description: "Solicite filmes e séries para download",              port: 5055, category: "request",  icon: "icons/jellyseerr.ico",   health: "/api/v1/status",      section: "streaming" },
+  /* ── Automação ── */
+  { name: "Sonarr",       description: "Gerenciamento e automação de séries de TV",           port: 8989, category: "manage",   icon: "icons/sonarr.svg",       health: "/ping",               section: "automation" },
+  { name: "Radarr",       description: "Gerenciamento e automação de filmes",                 port: 7878, category: "manage",   icon: "icons/radarr.svg",       health: "/ping",               section: "automation" },
+  { name: "Lidarr",       description: "Gerenciamento e automação de música",                 port: 8686, category: "manage",   icon: "icons/lidarr.svg",       health: "/ping",               section: "automation" },
+  { name: "Bazarr",       description: "Gerenciamento automático de legendas",                port: 6767, category: "subtitle", icon: "icons/bazarr.png",       health: "/api/system/status",  section: "automation" },
+  /* ── Infraestrutura ── */
+  { name: "Prowlarr",     description: "Gerenciador de indexadores para Sonarr e Radarr",     port: 9696, category: "indexer",  icon: "icons/prowlarr.svg",     health: "/ping",               section: "tools" },
+  { name: "qBittorrent",  description: "Cliente de download de torrents",                     port: 8080, category: "download", icon: "icons/qbittorrent.svg",  health: "/api/v2/app/version", section: "tools" },
+  { name: "FlareSolverr", description: "Proxy para bypass de proteção Cloudflare",            port: 8191, category: "tool",     icon: "icons/flaresolverr.svg", health: "/health",             section: "tools" },
 ];
 
 const ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.33 8h9.34M8.67 4l4 4-4 4"/></svg>`;
@@ -124,7 +127,7 @@ function createCard(service) {
   card.href = baseUrl(service.port);
   card.target = "_blank";
   card.rel = "noopener noreferrer";
-  card.className = service.featured ? "card featured" : "card";
+  card.className = service.section === "streaming" ? "card featured" : "card";
   card.dataset.port = service.port;
 
   card.innerHTML = `
@@ -283,8 +286,8 @@ async function handleContainerAction(e) {
 function setupLogControls() {
   const select = document.getElementById("log-service");
   const CONTAINER_NAMES = [
-    "jellyfin", "jellyseerr", "sonarr", "radarr",
-    "bazarr", "prowlarr", "qbittorrent", "flaresolverr", "dashboard",
+    "jellyfin", "navidrome", "jellyseerr", "sonarr", "radarr",
+    "lidarr", "bazarr", "prowlarr", "qbittorrent", "flaresolverr", "dashboard",
   ];
   select.innerHTML = '<option value="">Selecione um serviço...</option>';
   CONTAINER_NAMES.forEach((name) => {
@@ -565,11 +568,14 @@ function initCanvas() {
    INIT
    ═══════════════════════════════════════ */
 async function init() {
-  const featuredGrid = document.getElementById("featured-grid");
-  const toolsGrid = document.getElementById("tools-grid");
+  const grids = {
+    streaming:  document.getElementById("streaming-grid"),
+    automation: document.getElementById("automation-grid"),
+    tools:      document.getElementById("tools-grid"),
+  };
 
   SERVICES.forEach((s) => {
-    (s.featured ? featuredGrid : toolsGrid).appendChild(createCard(s));
+    grids[s.section].appendChild(createCard(s));
   });
 
   /* ── Nav ── */

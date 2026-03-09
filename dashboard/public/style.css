@@ -311,11 +311,13 @@ section { display: flex; flex-direction: column; gap: .875rem; }
   content: ''; flex: 1; height: 1px;
   background: linear-gradient(90deg, var(--border), transparent);
 }
-.section-label--secondary { color: var(--text-secondary); }
+.section-label--automation { color: var(--accent-yellow); }
+.section-label--tools { color: var(--text-secondary); }
 
 .grid { display: grid; gap: 1rem; }
-.featured-grid { grid-template-columns: repeat(2, 1fr); }
-.tools-grid    { grid-template-columns: repeat(4, 1fr); }
+.streaming-grid  { grid-template-columns: repeat(3, 1fr); }
+.automation-grid { grid-template-columns: repeat(4, 1fr); }
+.tools-grid      { grid-template-columns: repeat(3, 1fr); }
 
 /* ═══════════════════════════════════════
    DASHBOARD — CARDS
@@ -759,8 +761,13 @@ footer strong {
 /* ═══════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════ */
+.card:nth-child(9) { animation-delay: .45s; }
+.card:nth-child(10) { animation-delay: .5s; }
+
 @media (max-width: 1024px) {
-  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+  .streaming-grid { grid-template-columns: repeat(3, 1fr); }
+  .automation-grid { grid-template-columns: repeat(2, 1fr); }
+  .tools-grid { grid-template-columns: repeat(3, 1fr); }
   .container-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -788,7 +795,8 @@ footer strong {
   #main-nav { order: 0; width: auto; }
   .view { padding: 1rem .75rem; gap: 1.25rem; }
   .section-label { font-size: .625rem; }
-  .featured-grid { grid-template-columns: 1fr; }
+  .streaming-grid { grid-template-columns: 1fr; }
+  .automation-grid { grid-template-columns: repeat(2, 1fr); }
   .tools-grid { grid-template-columns: repeat(2, 1fr); }
   .card { padding: .875rem; gap: .5rem; border-radius: var(--radius-sm); }
   .card-icon { width: 36px; height: 36px; }
@@ -809,6 +817,7 @@ footer strong {
 }
 
 @media (max-width: 360px) {
+  .streaming-grid { grid-template-columns: 1fr; }
+  .automation-grid { grid-template-columns: 1fr; }
   .tools-grid { grid-template-columns: 1fr; }
-  .featured-grid { grid-template-columns: 1fr; }
 }
