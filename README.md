@@ -14,6 +14,8 @@ Stack completa e self-hosted para gerenciamento e streaming de mídia, com Docke
 | **Bazarr** | `6767` | Gerenciador automático de legendas |
 | **qBittorrent** | `8080` | Cliente de download torrent |
 | **FlareSolverr** | `8191` | Proxy para bypass de Cloudflare |
+| **Navidrome** | `4533` | Servidor de música (API Subsonic) |
+| **Lidarr** | `8686` | Gerenciador automático de música |
 | **Dashboard** | `3000` | Painel de controle da stack |
 
 ## 🖥️ Pré-requisitos
@@ -108,7 +110,7 @@ DASHBOARD_PASSWORD=sua_senha_segura
 ### 4. Criar diretórios de mídia
 
 ```bash
-mkdir -p media/{movies,tv,downloads/{complete,incomplete}}
+mkdir -p media/{movies,tv,music,downloads/{complete,incomplete}}
 ```
 
 ### 5. Subir a stack
@@ -174,7 +176,7 @@ DASHBOARD_PASSWORD=sua_senha_segura
 ### 5. Criar diretórios de mídia
 
 ```powershell
-mkdir media\movies, media\tv, media\downloads\complete, media\downloads\incomplete
+mkdir media\movies, media\tv, media\music, media\downloads\complete, media\downloads\incomplete
 ```
 
 ### 6. Subir a stack
@@ -206,6 +208,8 @@ Após a stack estar rodando, acesse pelo navegador:
 | Bazarr | http://localhost:6767 |
 | qBittorrent | http://localhost:8080 |
 | FlareSolverr | http://localhost:8191 |
+| Navidrome | http://localhost:4533 |
+| Lidarr | http://localhost:8686 |
 
 ## ⚙️ Configuração inicial dos serviços
 
@@ -217,9 +221,53 @@ Após a stack estar rodando, acesse pelo navegador:
 4. **Radarr** — Mesma configuração do Sonarr para filmes
 5. **Bazarr** — Conecte ao Sonarr/Radarr e configure provedores de legendas
 6. **Jellyfin** — Configure suas bibliotecas apontando para `/data/movies` e `/data/tv`
-7. **Jellyseerr** — Conecte ao Jellyfin, Sonarr e Radarr
+7. **Jellyfin** — Configure suas bibliotecas apontando para `/data/movies`, `/data/tv` e `/data/music`
+8. **Jellyseerr** — Conecte ao Jellyfin, Sonarr e Radarr
+9. **Lidarr** — Conecte ao Prowlarr e qBittorrent, configure pasta raiz como `/data/music`
+10. **Navidrome** — Acesse http://localhost:4533 e crie sua conta de admin
 
-## 🌐 Configuração de Idiomas
+## � Configuração de Música (Navidrome + Lidarr)
+
+A stack inclui um sistema completo e automatizado para música:
+
+### Fluxo automatizado
+1. **Lidarr** gerencia sua biblioteca de música — adicione artistas e álbuns desejados
+2. **Lidarr** busca e baixa via **qBittorrent** usando indexadores do **Prowlarr**
+3. Arquivos são organizados automaticamente em `/media/music/Artista/Álbum/`
+4. **Navidrome** detecta novos arquivos e atualiza a biblioteca automaticamente
+5. **Amperfy** (iOS) conecta ao Navidrome via API Subsonic para streaming
+
+### Configuração do Lidarr
+1. Acesse http://localhost:8686
+2. **Settings → Media Management** → Root Folder: `/data/music`
+3. **Settings → Download Clients** → Adicione qBittorrent (host: `qbittorrent`, porta: `8080`)
+4. **Settings → Profiles** → Configure qualidade preferida (ex: FLAC, 320kbps MP3)
+5. O Prowlarr sincroniza os indexadores automaticamente
+
+### Configuração do Navidrome
+1. Acesse http://localhost:4533
+2. Crie sua conta de administrador no primeiro acesso
+3. A biblioteca já está apontando para `/music` (mapeado de `./media/music`)
+4. Scan automático a cada 1 minuto (`ND_SCANSCHEDULE=1m`)
+5. Transcodificação habilitada para streaming otimizado no celular
+
+### Configuração do Amperfy (iOS)
+1. Instale o **Amperfy** na App Store (gratuito, open source)
+2. Abra o app → **Add Server**
+3. Preencha:
+   - **Server URL:** `http://SEU_IP:4533`
+   - **Username:** seu usuário do Navidrome
+   - **Password:** sua senha do Navidrome
+   - **API Type:** Subsonic
+4. Recursos disponíveis:
+   - Download offline para ouvir sem internet
+   - Suporte a CarPlay
+   - Playlists e favoritos sincronizados
+   - Cache inteligente de músicas
+
+> **Dica:** Para acesso fora de casa, configure um reverse proxy (Caddy/Nginx) ou use Tailscale/WireGuard.
+
+## �🌐 Configuração de Idiomas
 
 A stack vem com dois perfis de idioma separados:
 
@@ -284,10 +332,13 @@ mediastack/
 │   ├── bazarr/
 │   ├── qbittorrent/
 │   ├── jellyseerr/
-│   └── flaresolverr/
+│   ├── flaresolverr/
+│   ├── navidrome/
+│   └── lidarr/
 └── media/                # Arquivos de mídia (não versionado)
     ├── movies/
     ├── tv/
+    ├── music/
     └── downloads/
 ```
 

@@ -14,6 +14,7 @@ services:
       - ${CONFIG_DIR}/jellyfin:/config
       - ${MEDIA_DIR}/movies:/data/movies
       - ${MEDIA_DIR}/tv:/data/tv
+      - ${MEDIA_DIR}/music:/data/music
     ports:
       - "8096:8096"
     restart: unless-stopped
@@ -169,6 +170,55 @@ services:
       - jellyfin
       - sonarr
       - radarr
+    networks:
+      - mediastack
+
+  # ============================================
+  # NAVIDROME - Servidor de Música
+  # http://localhost:4533
+  # ============================================
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    environment:
+      - ND_SCANSCHEDULE=1m
+      - ND_LOGLEVEL=info
+      - ND_SESSIONTIMEOUT=24h
+      - ND_BASEURL=
+      - ND_ENABLETRANSCODINGCONFIG=true
+      - ND_DEFAULTLANGUAGE=pt
+      - ND_UIWELCOMEMESSAGE=archwes music
+    volumes:
+      - ${CONFIG_DIR}/navidrome:/data
+      - ${MEDIA_DIR}/music:/music:ro
+    ports:
+      - "4533:4533"
+    user: "${PUID}:${PGID}"
+    restart: unless-stopped
+    networks:
+      - mediastack
+
+  # ============================================
+  # LIDARR - Gerenciador de Música
+  # http://localhost:8686
+  # ============================================
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/lidarr:/config
+      - ${MEDIA_DIR}:/data
+      - ${MEDIA_DIR}/downloads:/downloads
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
+    depends_on:
+      - prowlarr
+      - qbittorrent
     networks:
       - mediastack
 

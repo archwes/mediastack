@@ -10,6 +10,8 @@ config/bazarr/
 config/qbittorrent/
 config/jellyseerr/
 config/flaresolverr/
+config/navidrome/
+config/lidarr/
 
 # Mídia e downloads
 media/

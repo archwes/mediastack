@@ -32,6 +32,8 @@ const STACK_CONTAINERS = new Set([
   "prowlarr",
   "qbittorrent",
   "flaresolverr",
+  "navidrome",
+  "lidarr",
   "dashboard",
 ]);
 

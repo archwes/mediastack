@@ -14,6 +14,8 @@ const SERVICES = [
   { name: "Prowlarr",     description: "Gerenciador de indexadores para Sonarr e Radarr",     port: 9696, category: "indexer",  icon: "icons/prowlarr.svg",     health: "/ping",               featured: false },
   { name: "qBittorrent",  description: "Cliente de download de torrents",                     port: 8080, category: "download", icon: "icons/qbittorrent.svg",  health: "/api/v2/app/version", featured: false },
   { name: "FlareSolverr",description: "Proxy para bypass de proteção Cloudflare",            port: 8191, category: "tool",     icon: "icons/flaresolverr.svg", health: "/health",             featured: false },
+  { name: "Navidrome",   description: "Servidor de música — streaming e biblioteca",         port: 4533, category: "media",    icon: "icons/navidrome.svg",    health: "/api/ping",           featured: true },
+  { name: "Lidarr",      description: "Gerenciamento e automação de música",                 port: 8686, category: "manage",   icon: "icons/lidarr.svg",       health: "/ping",               featured: false },
 ];
 
 const ARROW_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.33 8h9.34M8.67 4l4 4-4 4"/></svg>`;
